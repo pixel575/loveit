@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dashboard — LoveIt Anime</title>
+  <link rel="stylesheet" href="assets/dashboard.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">LoveIt <span class="sub">Anime</span></div>
+    <div class="search">
+      <input id="searchInput" placeholder="Search anime, genres, year..." />
+    </div>
+    <nav class="nav">
+      <button id="btnProfile" class="icon"></button>
+      <button id="btnLogout" class="btn-ghost">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="welcome card">
+      <div>
+        <h1 id="greeting">Welcome, Guest</h1>
+        <p id="subGreeting">Discover anime, build your watchlist, track episodes and share favorites.</p>
+      </div>
+      <div class="profile-card" id="profileCard">
+        <!-- populated from JS -->
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="feature-col">
+        <div class="card">
+          <h2>Trending Now</h2>
+          <div id="trending" class="grid"></div>
+        </div>
+        <div class="card">
+          <h2>Recommended for you</h2>
+          <div id="recommended" class="grid"></div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="card small-card">
+          <h3>Your Watchlist</h3>
+          <div id="watchlist"></div>
+        </div>
+        <div class="card small-card">
+          <h3>Favorites</h3>
+          <div id="favorites"></div>
+        </div>
+        <div class="card small-card">
+          <h3>Quick Filters</h3>
+          <div class="filters">
+            <button data-filter="all">All</button>
+            <button data-filter="action">Action</button>
+            <button data-filter="romance">Romance</button>
+            <button data-filter="sci-fi">Sci-Fi</button>
+            <button data-filter="slice">Slice of Life</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card">
+      <h2>Browse</h2>
+      <div id="browseGrid" class="grid"></div>
+    </section>
+  </main>
+
+  <!-- details modal -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-inner card">
+      <button id="modalClose" class="modal-close">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="assets/dashboard.js"></script>
+</body>
+</html>

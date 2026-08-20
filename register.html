@@ -4,20 +4,13 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Register — LoveIt Anime</title>
+  <link rel="stylesheet" href="assets/dashboard.css">
   <style>
-    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#071028;color:#eef2ff;font-family:Inter,system-ui,Segoe UI,Roboto}
-    .box{width:420px;background:#0f1326;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-    h2{margin:0 0 8px;color:#ff7ab6}
-    label{display:block;font-size:13px;color:#b9bee6;margin-top:12px}
-    input{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#0c1020;color:#eef2ff}
-    button{width:100%;margin-top:16px;padding:10px;border-radius:8px;border:none;background:#ff7ab6;color:#081026;font-weight:700}
-    .small{font-size:13px;color:#9aa0d6;margin-top:10px;text-align:center}
-    .error{color:#ffd6e7;font-size:13px;margin-top:8px}
-    a{color:#9fc7ff}
+    .box{max-width:480px}
   </style>
 </head>
 <body>
-  <div class="box">
+  <div class="box" style="margin:4vh auto;">
     <h2>Create account</h2>
     <form id="regForm" novalidate>
       <label for="username">Username</label>
@@ -55,8 +48,8 @@
       accounts.push({ username, email, password: pwd, createdAt: new Date().toISOString() });
       localStorage.setItem('li_accounts', JSON.stringify(accounts));
       localStorage.setItem('li_current', JSON.stringify({email, username}));
-      alert('Account created (demo only). You are now logged in as ' + username + '.');
-      window.location.href = 'index.html';
+      // redirect to dashboard
+      window.location.href = 'dashboard.html';
     });
 
     function showError(message) {
