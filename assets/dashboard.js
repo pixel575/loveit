@@ -39,7 +39,14 @@
 
   // storage for user lists
   function getList(key){
-    return JSON.parse(localStorage.getItem(key) || '[]');
+    const raw = JSON.parse(localStorage.getItem(key) || '[]');
+    // migrate old watchlist format (array of ids) to objects with progress/notes
+    if(key==='li_watchlist' && raw.length && typeof raw[0] === 'number'){
+      const migrated = raw.map(id=>({id,progress:0,notes:''}));
+      localStorage.setItem(key, JSON.stringify(migrated));
+      return migrated;
+    }
+    return raw;
   }
   function saveList(key, arr){
     localStorage.setItem(key, JSON.stringify(arr));
@@ -50,7 +57,7 @@
     el.innerHTML = '';
     list.forEach(a => {
       const d = document.createElement('div'); d.className='anime-card';
-      d.innerHTML = `<img src="${a.img}" alt="${a.title}"><div class="meta"><h3>${a.title}</h3><p>${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><div class="btn-row"><button class="btn" data-id="${a.id}" data-action="details">Details</button><button class="btn-plain" data-id="${a.id}" data-action="watch">Watchlist</button></div></div>`;
+      d.innerHTML = `<img src="${a.img}" alt="${a.title}"><div class="meta"><h3>${a.title}</h3><p>${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><div class="btn-row"><button class="btn" data-id="${a.id}" data-action="details">Details</button><button class="btn-plain" data-id="${a.id}" data-action="watch">Add to Watchlist</button></div></div>`;
       el.appendChild(d);
     });
   }
@@ -62,15 +69,34 @@
   }
 
   function renderWatchlist(){
-    const ids = getList('li_watchlist');
-    const items = ANIME.filter(a=>ids.includes(a.id));
+    const list = getList('li_watchlist');
     const el = $('#watchlist'); el.innerHTML='';
-    items.forEach(a=>{const div=document.createElement('div');div.className='mini';div.innerHTML=`<div style="display:flex;gap:8px;align-items:center"><img src="${a.img}" style="width:56px;height:36px;object-fit:cover;border-radius:6px"><div><strong>${a.title}</strong><div style="font-size:12px;color:var(--muted)">${a.year} • ⭐ ${a.score}</div></div><div style="margin-left:auto"><button class=btn data-id="${a.id}" data-action="remove-watch">Remove</button></div></div>`;el.appendChild(div);});
+    if(!list.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">Your watchlist is empty.</div>'; return; }
+    list.forEach(entry=>{
+      const a = ANIME.find(x=>x.id===entry.id);
+      if(!a) return;
+      const div = document.createElement('div'); div.className='mini card';
+      div.style.marginBottom='8px';
+      div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">
+        <img src="${a.img}" style="width:80px;height:56px;object-fit:cover;border-radius:6px">
+        <div style="flex:1">
+          <strong>${a.title}</strong>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Progress: <input data-action="progress" data-id="${a.id}" type="range" min="0" max="100" value="${entry.progress||0}" style="vertical-align:middle"> <span class="prog-val" data-id="${a.id}">${entry.progress||0}%</span></div>
+          <div style="margin-top:8px"><textarea data-action="notes" data-id="${a.id}" placeholder="Notes" style="width:100%;height:56px;border-radius:6px;padding:8px">${entry.notes||''}</textarea></div>
+        </div>
+        <div style="margin-left:8px;display:flex;flex-direction:column;gap:6px">
+          <button class="btn" data-action="details" data-id="${a.id}">Details</button>
+          <button class="btn-plain" data-action="remove-watch" data-id="${a.id}">Remove</button>
+        </div>
+      </div>`;
+      el.appendChild(div);
+    });
   }
   function renderFavorites(){
     const ids = getList('li_favorites');
     const items = ANIME.filter(a=>ids.includes(a.id));
     const el = $('#favorites'); el.innerHTML='';
+    if(!items.length) { el.innerHTML = '<div style="color:var(--muted);font-size:13px">No favorites yet.</div>'; return; }
     items.forEach(a=>{const div=document.createElement('div');div.className='mini';div.innerHTML=`<div style="display:flex;gap:8px;align-items:center"><img src="${a.img}" style="width:56px;height:36px;object-fit:cover;border-radius:6px"><div><strong>${a.title}</strong><div style="font-size:12px;color:var(--muted)">${a.year}</div></div></div>`;el.appendChild(div);});
   }
 
@@ -80,8 +106,33 @@
     if(!a) return;
     const modal = $('#modal');
     const content = document.getElementById('modalContent');
-    content.innerHTML = `<div class="modal-content"><img src="${a.img}"><h2 style="color:var(--accent)">${a.title}</h2><p style="color:var(--muted)">${a.genres.join(' • ')} • ${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><p style="clear:left">${a.synopsis}</p><div style="margin-top:12px"><button class="btn" data-id="${a.id}" data-action="fav">Favorite</button><button class="btn-plain" data-id="${a.id}" data-action="watch">Add to Watchlist</button></div></div>`;
+    // load existing watchlist entry if any
+    const wl = getList('li_watchlist');
+    const entry = wl.find(x=>x.id===a.id) || {id:a.id,progress:0,notes:''};
+    content.innerHTML = `<div class="modal-content"><img src="${a.img}"><h2 style="color:var(--accent)">${a.title}</h2><p style="color:var(--muted)">${a.genres.join(' • ')} • ${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><p style="clear:left">${a.synopsis}</p>
+      <div style="margin-top:12px">
+        <label>Progress: <input id="modalProgress" type="range" min="0" max="100" value="${entry.progress||0}"> <span id="modalProgVal">${entry.progress||0}%</span></label>
+        <div style="margin-top:8px"><textarea id="modalNotes" placeholder="Notes about this anime" style="width:100%;height:80px;border-radius:6px;padding:8px">${entry.notes||''}</textarea></div>
+        <div style="margin-top:10px;display:flex;gap:8px"><button id="modalSave" class="btn">Save to Watchlist</button><button id="modalFav" class="btn-plain">Favorite</button></div>
+      </div></div>`;
     modal.hidden = false;
+
+    // wire modal controls
+    document.getElementById('modalProgress').addEventListener('input', e=>{
+      document.getElementById('modalProgVal').textContent = e.target.value + '%';
+    });
+    document.getElementById('modalSave').addEventListener('click', ()=>{
+      const progress = Number(document.getElementById('modalProgress').value);
+      const notes = document.getElementById('modalNotes').value;
+      addOrUpdateWatch(a.id, progress, notes);
+      renderWatchlist();
+      closeModal();
+    });
+    document.getElementById('modalFav').addEventListener('click', ()=>{
+      addFavorite(a.id);
+      renderFavorites();
+      alert('Added to favorites');
+    });
   }
 
   function closeModal(){
@@ -92,31 +143,43 @@
   document.addEventListener('click', e=>{
     const t = e.target;
     const action = t.getAttribute('data-action');
-    if(action==='details') openDetails(t.getAttribute('data-id'));
+    if(action==='details') openDetails(Number(t.getAttribute('data-id')));
     if(action==='watch'){
       const id = Number(t.getAttribute('data-id'));
-      const list = getList('li_watchlist');
-      if(!list.includes(id)) list.push(id); else {
-        // if clicked from watchlist buttons we may want to remove
-      }
-      saveList('li_watchlist', list);
+      addOrUpdateWatch(id,0,'');
       renderWatchlist();
       t.textContent = 'Added';
     }
     if(action==='remove-watch'){
       const id = Number(t.getAttribute('data-id'));
-      const list = getList('li_watchlist').filter(x=>x!==id);
+      const list = getList('li_watchlist').filter(x=>x.id!==id);
       saveList('li_watchlist', list);
       renderWatchlist();
       renderBrowse();
     }
     if(action==='fav'){
       const id = Number(t.getAttribute('data-id'));
-      const list = getList('li_favorites');
-      if(!list.includes(id)) list.push(id);
-      saveList('li_favorites', list);
+      addFavorite(id);
       renderFavorites();
       alert('Added to favorites');
+    }
+  });
+
+  // handle input changes for progress and notes
+  document.addEventListener('input', e=>{
+    const t = e.target;
+    const action = t.getAttribute('data-action');
+    if(action==='progress'){
+      const id = Number(t.getAttribute('data-id'));
+      const list = getList('li_watchlist');
+      const item = list.find(x=>x.id===id);
+      if(item){ item.progress = Number(t.value); saveList('li_watchlist',list); const span = document.querySelector('.prog-val[data-id="'+id+'"]'); if(span) span.textContent = item.progress + '%'; }
+    }
+    if(action==='notes'){
+      const id = Number(t.getAttribute('data-id'));
+      const list = getList('li_watchlist');
+      const item = list.find(x=>x.id===id);
+      if(item){ item.notes = t.value; saveList('li_watchlist',list); }
     }
   });
 
@@ -143,6 +206,20 @@
     localStorage.removeItem('li_current');
     window.location.href = 'login.html';
   });
+
+  // watchlist helpers
+  function addOrUpdateWatch(id, progress, notes){
+    const list = getList('li_watchlist');
+    const existing = list.find(x=>x.id===id);
+    if(existing){ existing.progress = progress || existing.progress; existing.notes = notes!==undefined?notes:existing.notes; }
+    else list.push({id,progress:progress||0,notes:notes||''});
+    saveList('li_watchlist', list);
+  }
+  function addFavorite(id){
+    const list = getList('li_favorites');
+    if(!list.includes(id)) list.push(id);
+    saveList('li_favorites', list);
+  }
 
   // require auth and initial render
   (function init(){

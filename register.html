@@ -47,9 +47,9 @@
 
       accounts.push({ username, email, password: pwd, createdAt: new Date().toISOString() });
       localStorage.setItem('li_accounts', JSON.stringify(accounts));
-      localStorage.setItem('li_current', JSON.stringify({email, username}));
-      // redirect to dashboard
-      window.location.href = 'dashboard.html';
+      // do not auto-login — redirect user to login page to sign in
+      alert('Account created. Please sign in.');
+      window.location.href = 'login.html';
     });
 
     function showError(message) {
