@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LoveIt Anime — Welcome</title>
+  <style>
+    :root{--bg:#0f1226;--card:#111427;--accent:#ff7ab6;--muted:#aeb2d6}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;background:
+      radial-gradient(circle at 10% 10%, rgba(255,122,182,0.08), transparent 10%),
+      linear-gradient(180deg,#071028 0%,var(--bg) 100%);color:#eef2ff;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .wrap{width:min(920px,94%);display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:center}
+    .hero{padding:48px}
+    h1{margin:0 0 12px;font-size: clamp(24px,4vw,40px);color:var(--accent)}
+    p{color:var(--muted);margin:0 0 18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03);padding:22px;border-radius:12px}
+    .actions{display:flex;gap:12px;margin-top:18px}
+    a.btn{display:inline-block;padding:10px 14px;border-radius:10px;text-decoration:none;color:#0b1020;background:var(--accent);font-weight:600}
+    a.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .preview{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center}
+    @media (max-width:880px){.wrap{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div class="card">
+        <h1>LoveIt Anime</h1>
+        <p>Welcome to a simple demo of login and registration flows. This is a front-end prototype — let me know if you want a full backend integration (Node, Firebase, Supabase).</p>
+        <div class="actions">
+          <a class="btn" href="login.html">Log in</a>
+          <a class="ghost" href="register.html">Create account</a>
+        </div>
+      </div>
+    </div>
+    <div class="preview card">
+      <img src="https://placehold.co/320x180/111427/ff7ab6?text=Anime+Hero" alt="hero" style="width:100%;border-radius:8px;object-fit:cover">
+      <div style="color:var(--muted);font-size:14px">Demo: client-side forms with validation. Accounts stored only in the browser for the prototype.</div>
+    </div>
+  </div>
+</body>
+</html>

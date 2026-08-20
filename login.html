@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login — LoveIt Anime</title>
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#071028;color:#eef2ff;font-family:Inter,system-ui,Segoe UI,Roboto}
+    .box{width:360px;background:#0f1326;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    h2{margin:0 0 8px;color:#ff7ab6}
+    label{display:block;font-size:13px;color:#b9bee6;margin-top:12px}
+    input{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#0c1020;color:#eef2ff}
+    button{width:100%;margin-top:16px;padding:10px;border-radius:8px;border:none;background:#ff7ab6;color:#081026;font-weight:700}
+    .small{font-size:13px;color:#9aa0d6;margin-top:10px;text-align:center}
+    .error{color:#ffd6e7;font-size:13px;margin-top:8px}
+    a{color:#9fc7ff}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Log in</h2>
+    <form id="loginForm" novalidate>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" required />
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" required minlength="6" />
+      <div id="err" class="error" role="alert" hidden></div>
+      <button type="submit">Sign in</button>
+    </form>
+    <div class="small">No account? <a href="register.html">Create one</a></div>
+  </div>
+
+  <script>
+    // Demo-only client-side auth using localStorage
+    const form = document.getElementById('loginForm');
+    const err = document.getElementById('err');
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      err.hidden = true;
+      const email = form.email.value.trim().toLowerCase();
+      const pwd = form.password.value;
+      if (!email || !pwd) return showError('Please fill in both fields.');
+
+      const accounts = JSON.parse(localStorage.getItem('li_accounts') || '[]');
+      const acct = accounts.find(a => a.email === email);
+      if (!acct) return showError('No account found for that email.');
+      if (acct.password !== pwd) return showError('Incorrect password.');
+
+      // In a real app you'd get a token from the server. Here we just store the logged user.
+      localStorage.setItem('li_current', JSON.stringify({email: acct.email, username: acct.username}));
+      alert('Logged in as ' + acct.username + '. This is a demo-only flow.');
+      window.location.href = 'index.html';
+    });
+
+    function showError(message) {
+      err.textContent = message;
+      err.hidden = false;
+    }
+  </script>
+</body>
+</html>
