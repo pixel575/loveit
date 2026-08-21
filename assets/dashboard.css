@@ -1,4 +1,4 @@
-/* assets/dashboard.css - shared styling for dashboard and forms */
+/* assets/dashboard.css - shared styling for dashboard and forms (updated fixes for modal) */
 :root{--bg:#0f1226;--card:#111427;--accent:#ff7ab6;--muted:#aeb2d6;--glass: rgba(255,255,255,0.03)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071028 0%,var(--bg) 100%);color:#eef2ff;min-height:100vh}
@@ -29,9 +29,11 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linea
 .btn-plain{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:6px 8px;border-radius:8px}
 .filters button{margin:4px 4px 0 0;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted)}
 .card h2, .card h3{margin:0 0 10px}
-.modal{position:fixed;inset:0;background:rgba(2,6,18,0.6);display:flex;align-items:center;justify-content:center;padding:20px}
-.modal-inner{max-width:900px;width:100;position:relative}
-.modal-close{position:absolute;right:12px;top:8px;background:transparent;border:none;color:var(--muted);font-size:22px}
+.modal{position:fixed;inset:0;background:rgba(2,6,18,0.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+/* Ensure hidden modals don't capture pointer events or block input */
+.modal[hidden]{display:none !important;pointer-events:none !important;}
+.modal-inner{max-width:900px;width:100%;position:relative}
+.modal-close{position:absolute;right:12px;top:8px;background:transparent;border:none;color:var(--muted);font-size:22px;padding:10px;border-radius:8px;cursor:pointer;z-index:10000}
 .modal-content img{max-width:240px;border-radius:8px;float:left;margin-right:12px}
 @media (max-width:980px){.features{grid-template-columns:1fr}.profile-card{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.anime-card img{height:140px}}
 /* reused form styles */

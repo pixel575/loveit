@@ -1,6 +1,6 @@
-// assets/dashboard.js - client-side demo dashboard functionality
+// assets/dashboard.js - client-side dashboard functionality (updated modal fail-safes)
 (function(){
-  // Sample anime data (demo). In a real app this would come from an API (Jikan/MAL/Tastedive etc.)
+  // Sample anime data
   const ANIME = [
     {id:1,title:'Starlight Samurai',year:2023,episodes:12,score:8.6,genres:['Action','Sci-Fi'],synopsis:'A mech pilot fights to save a floating city.',img:'https://placehold.co/400x240/1b1330/ff7ab6?text=Starlight+Samurai'},
     {id:2,title:'Cherry Blossom Promises',year:2021,episodes:24,score:8.2,genres:['Romance','Slice of Life'],synopsis:'Two childhood friends rediscover each other across seasons.',img:'https://placehold.co/400x240/111427/ffd9ee?text=Cherry+Blossom'},
@@ -10,7 +10,6 @@
     {id:6,title:'Galactic Bakery',year:2022,episodes:12,score:7.5,genres:['Comedy','Slice of Life'],synopsis:'A bakery crew run a shop that serves aliens and humans alike.',img:'https://placehold.co/400x240/2b2e4a/ffd9a6?text=Galactic+Bakery'},
   ];
 
-  // State helpers
   const $ = sel => document.querySelector(sel);
   const $all = sel => Array.from(document.querySelectorAll(sel));
 
@@ -27,7 +26,6 @@
     return cur;
   }
 
-  // render greeting and profile
   function renderProfile(){
     const cur = requireAuth();
     if(!cur) return;
@@ -37,10 +35,8 @@
     pc.innerHTML = `<div style="font-weight:700;color:var(--accent)">${cur.username}</div><div style="color:var(--muted);font-size:13px">${cur.email}</div>`;
   }
 
-  // storage for user lists
   function getList(key){
     const raw = JSON.parse(localStorage.getItem(key) || '[]');
-    // migrate old watchlist format (array of ids) to objects with progress/notes
     if(key==='li_watchlist' && raw.length && typeof raw[0] === 'number'){
       const migrated = raw.map(id=>({id,progress:0,notes:''}));
       localStorage.setItem(key, JSON.stringify(migrated));
@@ -92,6 +88,7 @@
       el.appendChild(div);
     });
   }
+
   function renderFavorites(){
     const ids = getList('li_favorites');
     const items = ANIME.filter(a=>ids.includes(a.id));
@@ -106,7 +103,6 @@
     if(!a) return;
     const modal = $('#modal');
     const content = document.getElementById('modalContent');
-    // load existing watchlist entry if any
     const wl = getList('li_watchlist');
     const entry = wl.find(x=>x.id===a.id) || {id:a.id,progress:0,notes:''};
     content.innerHTML = `<div class="modal-content"><img src="${a.img}"><h2 style="color:var(--accent)">${a.title}</h2><p style="color:var(--muted)">${a.genres.join(' • ')} • ${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><p style="clear:left">${a.synopsis}</p>
@@ -115,34 +111,27 @@
         <div style="margin-top:8px"><textarea id="modalNotes" placeholder="Notes about this anime" style="width:100%;height:80px;border-radius:6px;padding:8px">${entry.notes||''}</textarea></div>
         <div style="margin-top:10px;display:flex;gap:8px"><button id="modalSave" class="btn">Save to Watchlist</button><button id="modalFav" class="btn-plain">Favorite</button></div>
       </div></div>`;
+    // show modal
     modal.hidden = false;
 
-    // wire modal controls
-    document.getElementById('modalProgress').addEventListener('input', e=>{
-      document.getElementById('modalProgVal').textContent = e.target.value + '%';
-    });
-    document.getElementById('modalSave').addEventListener('click', ()=>{
-      const progress = Number(document.getElementById('modalProgress').value);
-      const notes = document.getElementById('modalNotes').value;
-      addOrUpdateWatch(a.id, progress, notes);
-      renderWatchlist();
-      closeModal();
-    });
-    document.getElementById('modalFav').addEventListener('click', ()=>{
-      addFavorite(a.id);
-      renderFavorites();
-      alert('Added to favorites');
-    });
+    // wire modal controls (re-bind each time)
+    const mp = document.getElementById('modalProgress');
+    if(mp){ mp.addEventListener('input', e=>{ document.getElementById('modalProgVal').textContent = e.target.value + '%'; }); }
+    const save = document.getElementById('modalSave');
+    if(save){ save.addEventListener('click', ()=>{ const progress = Number(document.getElementById('modalProgress').value); const notes = document.getElementById('modalNotes').value; addOrUpdateWatch(a.id, progress, notes); renderWatchlist(); closeModal(); }); }
+    const fav = document.getElementById('modalFav');
+    if(fav){ fav.addEventListener('click', ()=>{ addFavorite(a.id); renderFavorites(); alert('Added to favorites'); }); }
   }
 
   function closeModal(){
-    $('#modal').hidden = true;
+    const modal = $('#modal');
+    if(modal) modal.hidden = true;
   }
 
   // interactions
   document.addEventListener('click', e=>{
     const t = e.target;
-    const action = t.getAttribute('data-action');
+    const action = t.getAttribute && t.getAttribute('data-action');
     if(action==='details') openDetails(Number(t.getAttribute('data-id')));
     if(action==='watch'){
       const id = Number(t.getAttribute('data-id'));
@@ -168,7 +157,7 @@
   // handle input changes for progress and notes
   document.addEventListener('input', e=>{
     const t = e.target;
-    const action = t.getAttribute('data-action');
+    const action = t.getAttribute && t.getAttribute('data-action');
     if(action==='progress'){
       const id = Number(t.getAttribute('data-id'));
       const list = getList('li_watchlist');
@@ -183,31 +172,52 @@
     }
   });
 
-  $('#modalClose').addEventListener('click', closeModal);
-  $('#modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+  // modal close bindings + failsafe handlers (added)
+  function bindModalControls(){
+    const modalClose = document.getElementById('modalClose');
+    const modal = document.getElementById('modal');
+    if(modalClose) modalClose.addEventListener('click', closeModal);
+    if(modal) modal.addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 
-  // search
-  $('#searchInput').addEventListener('input', e=>{
+    // global fallback: if user taps outside modal-inner, close (useful on mobile when hit targets misbehave)
+    document.addEventListener('touchstart', function(e){
+      const m = document.getElementById('modal');
+      if(!m || m.hidden) return;
+      const inner = document.querySelector('.modal-inner');
+      if(inner && !inner.contains(e.target)) closeModal();
+    }, {passive:true});
+
+    // keyboard escape to close
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+
+    // additionally allow a click outside modal-inner to close (desktop)
+    document.addEventListener('click', function(e){
+      const m = document.getElementById('modal');
+      if(!m || m.hidden) return;
+      const inner = document.querySelector('.modal-inner');
+      if(inner && !inner.contains(e.target)) closeModal();
+    });
+  }
+
+  // search and other handlers
+  $('#searchInput') && $('#searchInput').addEventListener && $('#searchInput').addEventListener('input', e=>{
     const q = e.target.value.trim().toLowerCase();
     if(!q){ renderBrowse(); return; }
     const res = ANIME.filter(a=> (a.title+ ' ' + a.genres.join(' ')).toLowerCase().includes(q) );
     renderGrid('browseGrid', res);
   });
 
-  // filters
   $all('.filters button').forEach(btn=>btn.addEventListener('click', ()=>{
     const f = btn.getAttribute('data-filter');
     if(f==='all') renderGrid('browseGrid', ANIME);
     else renderGrid('browseGrid', ANIME.filter(a=>a.genres.map(g=>g.toLowerCase()).includes(f)));
   }));
 
-  // logout
-  $('#btnLogout').addEventListener('click', ()=>{
+  $('#btnLogout') && $('#btnLogout').addEventListener('click', ()=>{
     localStorage.removeItem('li_current');
     window.location.href = 'login.html';
   });
 
-  // watchlist helpers
   function addOrUpdateWatch(id, progress, notes){
     const list = getList('li_watchlist');
     const existing = list.find(x=>x.id===id);
@@ -221,8 +231,9 @@
     saveList('li_favorites', list);
   }
 
-  // require auth and initial render
+  // init
   (function init(){
+    bindModalControls();
     const cur = requireAuth(); if(!cur) return;
     renderProfile();
     renderBrowse();
