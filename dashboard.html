@@ -7,6 +7,30 @@
   <link rel="stylesheet" href="assets/dashboard.css">
 </head>
 <body>
+  <script>
+    // Immediate fail-safe: hide or disable the modal as early as possible.
+    // This runs before other scripts/styles load to avoid the overlay blocking taps.
+    (function(){
+      function disableModal(){
+        try{
+          var m = document.getElementById('modal');
+          if(m){
+            m.hidden = true;
+            m.style.display = 'none';
+            m.style.pointerEvents = 'none';
+          }
+          // also remove any modal-close that might steal focus
+          var mc = document.getElementById('modalClose'); if(mc) mc.style.pointerEvents = 'auto';
+        }catch(e){ /* silently ignore */ }
+      }
+      disableModal();
+      if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', disableModal);
+      // extra fallback timers
+      setTimeout(disableModal, 300);
+      setTimeout(disableModal, 1200);
+    })();
+  </script>
+
   <header class="top">
     <div class="brand">LoveIt <span class="sub">Anime</span></div>
     <div class="search">
