@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="LoveIt favicon">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0%" stop-color="#ff8ac0"/>
+      <stop offset="100%" stop-color="#ff5fa6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="#0f1226" />
+  <g transform="translate(8,8)">
+    <!-- heart -->
+    <path d="M24 6c-3.3 0-6 2.1-7 5-1-2.9-3.7-5-7-5-4.1 0-7 3.3-7 7.4 0 7.2 13.6 13.6 14 13.8.4-.2 14-6.6 14-13.8C38 9.3 35.1 6 31 6z" fill="url(#g)" transform="scale(0.8) translate(6,2)" />
+    <!-- small star -->
+    <polygon points="44,6 46,11 52,11 47.5,14.5 49.5,19 44,16 38.5,19 40.5,14.5 36,11 42,11" fill="#fff7" transform="scale(0.5) translate(8,4)" />
+  </g>
+</svg>
