@@ -1,11 +1,36 @@
-// assets/dashboard.js - updated: render defaults immediately and load large AniList catalog in background
-// - Fix for "no anime shown": render initial DEFAULT_TITLES right away so UI isn't empty while catalog loads
-// - Background fetchCatalog will append additional items and refresh the browse grid when available
+// assets/dashboard.js - add static fallback so UI always shows anime even if AniList/API blocked
+// - FALLBACK_ANIME: small curated list with placeholder images so the dashboard is never empty
+// - If initial AniList lookups fail, we fall back to FALLBACK_ANIME immediately
 
 (function(){
   const DEFAULT_TITLES = [
     'Solo Leveling','Attack on Titan','Demon Slayer','Jujutsu Kaisen','One Piece','Chainsaw Man'
   ];
+
+  // Built-in fallback to guarantee visible content when AniList/API is blocked or rate-limited
+  const FALLBACK_ANIME = [
+    { id: 100001, title: 'Attack on Titan', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Attack+on+Titan', genres: ['Action'], score: 0, trailer: null },
+    { id: 100002, title: 'Fullmetal Alchemist: Brotherhood', img: 'https://placehold.co/320x180/111427/ff7ab6?text=FMA+B', genres: ['Adventure'], score: 0, trailer: null },
+    { id: 100003, title: 'Death Note', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Death+Note', genres: ['Mystery'], score: 0, trailer: null },
+    { id: 100004, title: 'Naruto', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Naruto', genres: ['Action'], score: 0, trailer: null },
+    { id: 100005, title: 'Naruto: Shippuden', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Shippuden', genres: ['Action'], score: 0, trailer: null },
+    { id: 100006, title: 'One Piece', img: 'https://placehold.co/320x180/111427/ff7ab6?text=One+Piece', genres: ['Adventure'], score: 0, trailer: null },
+    { id: 100007, title: 'My Hero Academia', img: 'https://placehold.co/320x180/111427/ff7ab6?text=My+Hero', genres: ['Action'], score: 0, trailer: null },
+    { id: 100008, title: 'Hunter x Hunter', img: 'https://placehold.co/320x180/111427/ff7ab6?text=HxH', genres: ['Adventure'], score: 0, trailer: null },
+    { id: 100009, title: 'Demon Slayer', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Demon+Slayer', genres: ['Action'], score: 0, trailer: null },
+    { id: 100010, title: 'Jujutsu Kaisen', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Jujutsu+Kaisen', genres: ['Action'], score: 0, trailer: null },
+    { id: 100011, title: 'Spirited Away', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Spirited+Away', genres: ['Fantasy'], score: 0, trailer: null },
+    { id: 100012, title: 'Cowboy Bebop', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Cowboy+Bebop', genres: ['Sci-Fi'], score: 0, trailer: null },
+    { id: 100013, title: 'Steins;Gate', img: 'https://placehold.co/320x180/111427/ff7ab6?text=SteinsGate', genres: ['Sci-Fi'], score: 0, trailer: null },
+    { id: 100014, title: 'Clannad', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Clannad', genres: ['Romance'], score: 0, trailer: null },
+    { id: 100015, title: 'Your Lie in April', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Your+Lie+in+April', genres: ['Romance'], score: 0, trailer: null },
+    { id: 100016, title: 'Code Geass', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Code+Geass', genres: ['Mecha'], score: 0, trailer: null },
+    { id: 100017, title: 'Violet Evergarden', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Violet+Evergarden', genres: ['Drama'], score: 0, trailer: null },
+    { id: 100018, title: 'Mob Psycho 100', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Mob+Psycho', genres: ['Action'], score: 0, trailer: null },
+    { id: 100019, title: 'Sword Art Online', img: 'https://placehold.co/320x180/111427/ff7ab6?text=SAO', genres: ['Sci-Fi'], score: 0, trailer: null },
+    { id: 100020, title: 'Haikyuu!!', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Haikyuu', genres: ['Sports'], score: 0, trailer: null }
+  ];
+
   const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
   const $ = sel => document.querySelector(sel);
   const $all = sel => Array.from(document.querySelectorAll(sel));
@@ -139,6 +164,9 @@
     }
     APP_ANIME = results.filter(Boolean);
 
+    // If AniList lookups failed and we have no items, use the built-in fallback immediately
+    if(!APP_ANIME.length){ APP_ANIME = FALLBACK_ANIME.slice(); }
+
     // Render initial sections using the small set so the user sees content immediately
     renderGrid('newReleases', APP_ANIME.slice(0,4));
     renderGrid('classics', APP_ANIME.slice(4,7));
@@ -173,47 +201,4 @@
   function getList(key){ try{ return JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ return []; } }
   function saveList(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
 
-  function renderWatchlist(){ const list = getList('li_watchlist'); const el = $('#watchlist'); if(!el) return; el.innerHTML=''; if(!list.length){ el.innerHTML = '<div style="color:var(--muted);font-size:13px">No items in watchlist</div>'; return; } list.forEach(i=>{ const a = APP_ANIME.find(x=>x.id===i.id); if(!a) return; const div = document.createElement('div'); div.textContent = a.title; el.appendChild(div); }); }
-  function renderFavorites(){ const ids = getList('li_favorites'); const items = APP_ANIME.filter(a=>ids.includes(a.id)); const el = $('#favorites'); if(!el) return; el.innerHTML=''; if(!items.length){ el.innerHTML='<div style="color:var(--muted);font-size:13px">No favorites</div>'; return; } items.forEach(a=>{ const d = document.createElement('div'); d.textContent = a.title; el.appendChild(d); }); }
-
-  function openDetails(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return; const modal = $('#modal'); const content = document.getElementById('modalContent'); if(!modal || !content) return; content.innerHTML = `<div class="modal-content"><img src="${a.img}" alt="${escapeHtml(a.title)}"/><h2>${escapeHtml(a.title)}</h2><p>${escapeHtml((a.genres||[]).join(', '))}</p></div>`; modal.hidden = false; }
-  function closeModal(){ const modal = $('#modal'); if(modal) modal.hidden = true; }
-
-  function openVideo(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return alert('Trailer not available'); if(!a.trailer) return alert('Trailer not available'); const vm = document.getElementById('videoModal'); const frame = document.getElementById('playerFrame'); if(!vm || !frame) return alert('Video player not ready');
-    const card = document.querySelector(`.anime-card[data-anime-id="${id}"]`);
-    if(card){ removeThumbIframeForCard(card); }
-    if(a.trailer.site.toLowerCase()==='youtube'){
-      frame.src = `https://www.youtube-nocookie.com/embed/${a.trailer.id}?autoplay=1&rel=0&modestbranding=1`;
-      vm.hidden=false;
-      const unmuteBtn = document.getElementById('unmuteBtn'); if(unmuteBtn) unmuteBtn.style.display='none';
-    } else { alert('Trailer site not supported for embedding.'); }
-  }
-
-  function closeVideo(){ const vm=document.getElementById('videoModal'); const frame=document.getElementById('playerFrame'); if(frame){ try{ frame.src = ''; }catch(e){} } if(vm) vm.hidden=true; setTimeout(()=>{ initThumbnailPlayers(); },300); }
-
-  function bindUnmute(){ const btn = document.getElementById('unmuteBtn'); if(!btn) return; btn.addEventListener('click', ()=>{ const frame = document.getElementById('playerFrame'); if(!frame) return; const src = frame.src || ''; if(!src) return; if(src.indexOf('mute=1')>-1) frame.src = src.replace('mute=1','mute=0'); }); }
-
-  function bindModalControls(){ const modalClose = document.getElementById('modalClose'); const modal = document.getElementById('modal'); if(modalClose) modalClose.addEventListener('click', closeModal); const videoClose = document.getElementById('videoClose'); if(videoClose) videoClose.addEventListener('click', closeVideo); }
-
-  function addOrUpdateWatch(id,progress,notes){ const list=getList('li_watchlist'); const existing=list.find(x=>x.id===id); if(existing){ existing.progress=progress||existing.progress; existing.notes=notes||existing.notes; } else { list.push({id,progress:progress||0,notes:notes||''}); } saveList('li_watchlist',list); }
-  function addFavorite(id){ const list=getList('li_favorites'); if(!list.includes(id)) list.push(id); saveList('li_favorites',list); }
-
-  function bindHeaderControls(){ const search = document.getElementById('searchInput'); if(search){ search.addEventListener('input', (e)=>{ const q = e.target.value.trim().toLowerCase(); if(!q){ renderGrid('browseGrid', APP_ANIME); return; } const matches = APP_ANIME.filter(a=> a.title.toLowerCase().includes(q) || (a.genres||[]).join(' ').toLowerCase().includes(q)); renderGrid('browseGrid', matches); }); }
-    const logout = document.getElementById('btnLogout'); if(logout){ logout.addEventListener('click', ()=>{ localStorage.removeItem('li_current'); window.location.href='login.html'; }); }
-  }
-
-  // clicks: image tap should play; other data-action buttons handled too
-  document.addEventListener('click', e=>{
-    const img = e.target.closest && e.target.closest('.anime-card img'); if(img){ const card = img.closest('.anime-card'); if(card){ const id = Number(card.dataset.animeId); if(!Number.isNaN(id)) { openVideo(id); return; } } }
-    const t = e.target.closest && e.target.closest('[data-action]'); if(!t) return; const action = t.getAttribute('data-action'); const id = Number(t.getAttribute('data-id'));
-    if(action==='details') openDetails(id);
-    else if(action==='download') downloadAnime(id);
-  });
-
-  async function downloadAnime(id){ const downloads = JSON.parse(localStorage.getItem('li_downloads') || '{}'); const url = downloads[id]; if(!url) return alert('No downloadable asset available for this title.'); window.open(url, '_blank'); }
-
-  function escapeHtml(str){ return String(str||'').replace(/[&"'<>]/g, function(c){ return ({'&':'&amp;','"':'&quot;',"'":'&#39;','<':'&lt;','>':'&gt;'})[c]; }); }
-
-  (async function init(){ bindModalControls(); bindHeaderControls(); bindUnmute(); const cur=requireAuth(); if(!cur) return; $('#greeting').textContent = `Welcome, ${cur.username}`; $('#subGreeting').textContent = 'Discover anime, watch trailers and save titles to your watchlist.'; await loadDefaults(); })();
-
-})();
+  function renderWatchlist(){ const list = getList('li_watchlist'); const el = $('#watchlist'); if(!el) return; el.innerHTML=''; if(!list.length){ el.innerHTML = '<div style="color:var(--muted);f[...]
