@@ -1,4 +1,4 @@
-/* assets/dashboard.css - improved layout and smaller overlay controls for better UX */
+/* assets/dashboard.css - improved layout and smaller overlay controls for better UX (added thumbnail player styles) */
 :root{--bg:#0f1226;--card:#111427;--accent:#ff7ab6;--muted:#aeb2d6;--glass: rgba(255,255,255,0.03)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071028 0%,var(--bg) 100%);color:#eef2ff;min-height:100vh}
@@ -22,6 +22,9 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linea
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
 .anime-card{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);position:relative;min-height:320px;display:flex;flex-direction:column}
 .anime-card img{width:100%;height:220px;object-fit:cover}
+/* thumbnail player container sits above the image and displays a muted autoplay iframe. pointer-events:none on iframe so taps pass through to image and open modal */
+.anime-card .thumb-player{position:absolute;left:0;top:0;width:100%;height:220px;z-index:2}
+.anime-card .thumb-player iframe{width:100%;height:100%;border-radius:0;background:#000;border:0;display:block;pointer-events:none}
 .anime-card .meta{padding:12px;flex:1;display:flex;flex-direction:column}
 .anime-card h3{margin:0;font-size:15px;color:var(--accent);text-transform:uppercase}
 .anime-card p{margin:6px 0 0;color:var(--muted);font-size:13px}
@@ -44,7 +47,7 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linea
 .overlay-controls a.download-btn[style*="pointer-events:none"]{opacity:0.45}
 /* leave space at bottom of meta so overlay doesn't block buttons */
 .anime-card .meta{padding-bottom:70px}
-@media (max-width:980px){.features{grid-template-columns:1fr}.profile-card{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.anime-card img{height:160px}.anime-card{min-height:260px}}
+@media (max-width:980px){.features{grid-template-columns:1fr}.profile-card{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.anime-card img{height:160px}.anime-card{min-height:260px}.anime-card .thumb-player{height:160px}}
 /* reused form styles */
 .box{width:100%;background:#0f1326;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);max-width:520px;margin:20px auto}
 h2{margin:0 0 8px;color:#ff7ab6}

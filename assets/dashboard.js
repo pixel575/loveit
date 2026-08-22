@@ -1,5 +1,5 @@
-// assets/dashboard.js - client-side dashboard functionality (AniList trailers & posters)
-// Updated: ensure trailer iframe uses playsinline parameter for mobile inline playback, add unmute fallback
+// assets/dashboard.js - client-side dashboard functionality (thumbnail inline autoplay + modal expand on touch)
+// Updated: show muted autoplay trailer inline inside card thumbnail; touch opens modal with unmuted trailer
 (function(){
   // Default titles to fetch from AniList
   const DEFAULT_TITLES = [
@@ -39,10 +39,30 @@
 
   function buildAnimeFromMeta(meta){ if(!meta) return null; const title = meta.title.romaji || meta.title.english || meta.title.native || 'Unknown'; const poster = meta.coverImage && (meta.coverImage.large || meta.coverImage.medium) ? (meta.coverImage.large || meta.coverImage.medium) : ''; const trailer = meta.trailer && meta.trailer.site && meta.trailer.id ? { site: meta.trailer.site, id: meta.trailer.id } : null; return { id: meta.id, title, year: meta.seasonYear || '', episodes: meta.episodes || 0, score: meta.averageScore || 0, genres: meta.genres || [], synopsis: (meta.description || '').replace(/<[^>]+>/g, '').slice(0, 400), img: poster, anilistUrl: meta.siteUrl || `https://anilist.co/anime/${meta.id}`, trailer }; }
 
-  // Make the image itself tappable: data-action="play" on the <img>
-  function renderCardHTML(a, showDownload){ const hasTrailer = !!(a.trailer && a.trailer.site && a.trailer.id); return `<img src="${a.img}" alt="${a.title}" data-action="play" data-id="${a.id}"><div class="meta"><h3>${a.title}</h3><p>${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><div class="btn-row"><button class="btn" data-id="${a.id}" data-action="details">Details</button><button class="btn-plain" data-id="${a.id}" data-action="watch">Add to Watchlist</button></div></div><div class="overlay-controls">${hasTrailer?'<!-- image is tappable, play button removed to avoid overlap -->':''}<a class="download-btn" ${showDownload?`data-action="download" data-id="${a.id}"`:'href="#" style="opacity:0.5;pointer-events:none;"'} aria-label="Download clip for ${a.title}"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11l4 4 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21H3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="download-btn" href="${a.anilistUrl}" target="_blank" rel="noopener" style="margin-left:8px">AniList</a></div>`; }
+  function renderCardHTML(a, showDownload){ const hasTrailer = !!(a.trailer && a.trailer.site && a.trailer.id); return `<div class="thumb-player" data-id="${a.id}"></div><img src="${a.img}" alt="${a.title}" data-action="play" data-id="${a.id}"><div class="meta"><h3>${a.title}</h3><p>${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><div class="btn-row"><button class="btn" data-id="${a.id}" data-action="details">Details</button><button class="btn-plain" data-id="${a.id}" data-action="watch">Add to Watchlist</button></div></div><div class="overlay-controls">${hasTrailer?'':''}<a class="download-btn" ${showDownload?`data-action="download" data-id="${a.id}"`:'href="#" style="opacity:0.5;pointer-events:none;"'} aria-label="Download clip for ${a.title}"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3v10" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 11l4 4 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 21H3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a><a class="download-btn" href="${a.anilistUrl}" target="_blank" rel="noopener" style="margin-left:8px">AniList</a></div>`; }
 
-  function renderGrid(target, list, showDownload=false){ const el = document.getElementById(target); if(!el) return; el.innerHTML=''; list.forEach(a=>{ const d = document.createElement('div'); d.className='anime-card'; d.innerHTML = renderCardHTML(a, showDownload); el.appendChild(d); }); }
+  function renderGrid(target, list, showDownload=false){ const el = document.getElementById(target); if(!el) return; el.innerHTML=''; list.forEach(a=>{ const d = document.createElement('div'); d.className='anime-card'; d.dataset.animeId = a.id; d.innerHTML = renderCardHTML(a, showDownload); el.appendChild(d); }); // after rendering, initialize thumbnail players for visible cards
+    initThumbnailPlayers(); }
+
+  // Create thumbnail iframe overlay (muted autoplay). pointer-events:none so taps open modal via image click underneath
+  function createThumbIframeForCard(card){ try{
+      const id = Number(card.dataset.animeId);
+      const meta = APP_ANIME.find(x=>x.id===id);
+      if(!meta || !meta.trailer || meta.trailer.site.toLowerCase()!=='youtube') return;
+      const tp = card.querySelector('.thumb-player'); if(!tp) return;
+      // avoid recreating
+      if(tp.querySelector('iframe')) return;
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute('frameborder','0');
+      iframe.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
+      iframe.src = `https://www.youtube.com/embed/${meta.trailer.id}?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1`;
+      iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.border='0'; iframe.style.pointerEvents='none';
+      tp.appendChild(iframe);
+    }catch(e){console.warn('createThumbIframeForCard',e);} }
+
+  function removeThumbIframeForCard(card){ try{ const tp = card.querySelector('.thumb-player'); if(!tp) return; tp.innerHTML=''; }catch(e){} }
+
+  function initThumbnailPlayers(){ const cards = document.querySelectorAll('.anime-card'); cards.forEach(c=>{ removeThumbIframeForCard(c); createThumbIframeForCard(c); }); }
 
   let APP_ANIME = [];
   async function loadDefaults(){ const results = []; for(const t of DEFAULT_TITLES){ const cached = getCachedMeta(t); if(cached){ results.push(buildAnimeFromMeta(cached)); continue; } const meta = await fetchAniList(t); if(meta){ cacheMeta(t, meta); results.push(buildAnimeFromMeta(meta)); } }
@@ -66,30 +86,21 @@
   function openDetails(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return; const modal = $('#modal'); const content = document.getElementById('modalContent'); const wl = getList('li_watchlist'); const entry = wl.find(x=>x.id===a.id) || {id:a.id,progress:0,notes:''}; content.innerHTML = `<div class="modal-content"><img src="${a.img}"><h2 style="color:var(--accent)">${a.title}</h2><p style="color:var(--muted)">${a.genres.join(' • ')} • ${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><p style="clear:left">${a.synopsis}</p><div style="margin-top:12px"><label>Progress: <input id="modalProgress" type="range" min="0" max="100" value="${entry.progress||0}"> <span id="modalProgVal">${entry.progress||0}%</span></label><div style="margin-top:8px"><textarea id="modalNotes" placeholder="Notes about this anime" style="width:100%;height:80px;border-radius:6px;padding:8px">${entry.notes||''}</textarea></div><div style="margin-top:10px;display:flex;gap:8px"><button id="modalSave" class="btn">Save to Watchlist</button><button id="modalFav" class="btn-plain">Favorite</button><a class="btn-plain" href="${a.anilistUrl}" target="_blank" rel="noopener">View on AniList</a></div></div></div>`; modal.hidden=false; const mp=document.getElementById('modalProgress'); if(mp){ mp.addEventListener('input', e=>{ document.getElementById('modalProgVal').textContent = e.target.value + '%'; }); } const save=document.getElementById('modalSave'); if(save){ save.addEventListener('click', ()=>{ const progress = Number(document.getElementById('modalProgress').value); const notes = document.getElementById('modalNotes').value; addOrUpdateWatch(a.id, progress, notes); renderWatchlist(); closeModal(); }); } const fav=document.getElementById('modalFav'); if(fav){ fav.addEventListener('click', ()=>{ addFavorite(a.id); renderFavorites(); alert('Added to favorites'); }); } }
   function closeModal(){ const modal = $('#modal'); if(modal) modal.hidden = true; }
 
-  function openVideo(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return alert('Trailer not available'); if(!a.trailer) return alert('Trailer not available'); const vm = document.getElementById('videoModal'); const frame = document.getElementById('playerFrame'); const unmuteBtn = document.getElementById('unmuteBtn'); // build embed with playsinline to allow inline playback on iOS/Android
+  function openVideo(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return alert('Trailer not available'); if(!a.trailer) return alert('Trailer not available'); const vm = document.getElementById('videoModal'); const frame = document.getElementById('playerFrame'); // stop thumbnail for this card
+    const card = document.querySelector(`.anime-card[data-anime-id="${id}"]`);
+    if(card){ removeThumbIframeForCard(card); }
+    // load unmuted embed so user can hear sound in big modal
     if(a.trailer.site.toLowerCase()==='youtube'){
-      // Use playsinline=1 to encourage inline playback on mobile devices. Do not force mute here — user tap should allow sound.
-      const src = `https://www.youtube.com/embed/${a.trailer.id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
-      frame.src = src;
-      // show modal and hide unmute button by default
+      frame.src = `https://www.youtube.com/embed/${a.trailer.id}?autoplay=1&rel=0&modestbranding=1`;
       vm.hidden=false;
-      if(unmuteBtn) unmuteBtn.style.display='none';
-      // after short timeout, if video seems to autoplay muted (some browsers mute), show unmute option
-      setTimeout(()=>{
-        try{
-          // If visible and still audio-only concerns, reveal unmute control for user (they can click to reload iframe without playsinline mute params)
-          if(unmuteBtn) unmuteBtn.style.display='inline-block';
-        }catch(e){}
-      },800);
+      const unmuteBtn = document.getElementById('unmuteBtn'); if(unmuteBtn) unmuteBtn.style.display='none';
     } else { alert('Trailer site not supported for embedding.'); }
   }
-  function closeVideo(){ const vm=document.getElementById('videoModal'); const frame=document.getElementById('playerFrame'); if(frame){ try{ frame.src = ''; }catch(e){} } if(vm) vm.hidden=true; }
+  function closeVideo(){ const vm=document.getElementById('videoModal'); const frame=document.getElementById('playerFrame'); if(frame){ try{ frame.src = ''; }catch(e){} } if(vm) vm.hidden=true; // restore thumbnail players for visible cards
+    setTimeout(()=>{ initThumbnailPlayers(); },300);
+  }
 
-  // unmute handler: reload iframe without playsinline parameter (user requested sound)
-  function bindUnmute(){ const btn = document.getElementById('unmuteBtn'); if(!btn) return; btn.addEventListener('click', ()=>{
-    const frame = document.getElementById('playerFrame'); if(!frame) return; const src = frame.src; if(!src) return; // reload with same id but without playsinline param (keeps autoplay)
-    const m = src.match(/embed\/([^?]+)/); if(!m) return; const id = m[1]; frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`; btn.style.display='none';
-  }); }
+  function bindUnmute(){ const btn = document.getElementById('unmuteBtn'); if(!btn) return; btn.addEventListener('click', ()=>{ const frame = document.getElementById('playerFrame'); if(!frame) return; const src = frame.src; if(!src) return; const m = src.match(/embed\/([^?]+)/); if(!m) return; const id = m[1]; frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`; btn.style.display='none'; }); }
 
   async function downloadAnime(id){ const downloads = JSON.parse(localStorage.getItem('li_downloads') || '{}'); const url = downloads[id]; if(!url) return alert('No downloadable asset available for this title.'); try{ const resp = await fetch(url); if(!resp.ok) throw new Error('Network error'); const blob = await resp.blob(); const blobUrl = URL.createObjectURL(blob); const aEl = document.createElement('a'); aEl.href = blobUrl; const a = APP_ANIME.find(x=>x.id===id); aEl.download = `${a.title.replace(/[^a-z0-9]/gi,'_')}.mp4`; document.body.appendChild(aEl); aEl.click(); aEl.remove(); setTimeout(()=>URL.revokeObjectURL(blobUrl),60000); }catch(err){ alert('Download failed: '+err.message); } }
 
