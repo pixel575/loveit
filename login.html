@@ -9,6 +9,16 @@
   <style>
     /* small overrides to reuse dashboard theme */
     .box{max-width:420px}
+    .error {
+      display: block;
+      color: #ff6b9d;
+      font-size: 14px;
+      margin-top: 10px;
+      padding: 10px;
+      background: rgba(255, 107, 157, 0.1);
+      border-radius: 6px;
+      border-left: 3px solid #ff6b9d;
+    }
   </style>
 </head>
 <body>
@@ -19,7 +29,7 @@
       <input id="email" name="email" type="email" required />
       <label for="password">Password</label>
       <input id="password" name="password" type="password" required minlength="6" />
-      <div id="err" class="error" role="alert" hidden></div>
+      <div id="err" class="error" role="alert" style="display: none;"></div>
       <button type="submit">Sign in</button>
     </form>
     <div class="small">No account? <a href="register.html">Create one</a></div>
@@ -32,15 +42,30 @@
 
     form.addEventListener('submit', e => {
       e.preventDefault();
-      err.hidden = true;
+      err.style.display = 'none';
+      err.textContent = '';
+      
       const email = form.email.value.trim().toLowerCase();
       const pwd = form.password.value;
-      if (!email || !pwd) return showError('Please fill in both fields.');
+      
+      if (!email || !pwd) {
+        return showError('Please fill in both fields.');
+      }
+
+      if (!email.includes('@')) {
+        return showError('Please enter a valid email address.');
+      }
 
       const accounts = JSON.parse(localStorage.getItem('li_accounts') || '[]');
       const acct = accounts.find(a => a.email === email);
-      if (!acct) return showError('No account found for that email.');
-      if (acct.password !== pwd) return showError('Incorrect password.');
+      
+      if (!acct) {
+        return showError('No account found for that email.');
+      }
+      
+      if (acct.password !== pwd) {
+        return showError('Incorrect password.');
+      }
 
       // store the logged user
       localStorage.setItem('li_current', JSON.stringify({email: acct.email, username: acct.username}));
@@ -50,7 +75,7 @@
 
     function showError(message) {
       err.textContent = message;
-      err.hidden = false;
+      err.style.display = 'block';
     }
   </script>
 </body>
