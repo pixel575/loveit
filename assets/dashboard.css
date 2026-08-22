@@ -1,4 +1,4 @@
-/* assets/dashboard.css - shared styling for dashboard and forms (updated fixes for modal) */
+/* assets/dashboard.css - shared styling for dashboard and forms (updated with play/download styles) */
 :root{--bg:#0f1226;--card:#111427;--accent:#ff7ab6;--muted:#aeb2d6;--glass: rgba(255,255,255,0.03)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071028 0%,var(--bg) 100%);color:#eef2ff;min-height:100vh}
@@ -19,7 +19,7 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linea
 .sidebar{display:flex;flex-direction:column;gap:12px}
 .small-card{padding:12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.anime-card{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
+.anime-card{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);position:relative}
 .anime-card img{width:100%;height:200px;object-fit:cover}
 .anime-card .meta{padding:10px}
 .anime-card h3{margin:0;font-size:14px;color:var(--accent)}
@@ -30,11 +30,15 @@ body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linea
 .filters button{margin:4px 4px 0 0;padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted)}
 .card h2, .card h3{margin:0 0 10px}
 .modal{position:fixed;inset:0;background:rgba(2,6,18,0.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
-/* Ensure hidden modals don't capture pointer events or block input */
-.modal[hidden]{display:none !important;pointer-events:none !important;}
+.modal[hidden]{display:none !important;pointer-events:none !important}
 .modal-inner{max-width:900px;width:100%;position:relative}
 .modal-close{position:absolute;right:12px;top:8px;background:transparent;border:none;color:var(--muted);font-size:22px;padding:10px;border-radius:8px;cursor:pointer;z-index:10000}
 .modal-content img{max-width:240px;border-radius:8px;float:left;margin-right:12px}
+/* play & download controls overlay */
+.card .overlay-controls{position:absolute;left:12px;bottom:12px;display:flex;gap:8px}
+.play-btn{background:linear-gradient(90deg,#ff7ab6,#ff5fa6);border-radius:999px;padding:8px 12px;color:#081026;font-weight:800;border:none;display:flex;gap:8px;align-items:center}
+.download-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:999px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.play-btn svg,.download-btn svg{width:16px;height:16px}
 @media (max-width:980px){.features{grid-template-columns:1fr}.profile-card{display:none}.grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}.anime-card img{height:140px}}
 /* reused form styles */
 .box{width:100%;background:#0f1326;padding:20px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);max-width:520px;margin:20px auto}

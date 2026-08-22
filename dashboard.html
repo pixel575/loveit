@@ -10,23 +10,17 @@
 <body>
   <script>
     // Immediate fail-safe: hide or disable the modal as early as possible.
-    // This runs before other scripts/styles load to avoid the overlay blocking taps.
     (function(){
       function disableModal(){
         try{
           var m = document.getElementById('modal');
-          if(m){
-            m.hidden = true;
-            m.style.display = 'none';
-            m.style.pointerEvents = 'none';
-          }
-          // also remove any modal-close that might steal focus
+          if(m){ m.hidden = true; m.style.display = 'none'; m.style.pointerEvents = 'none'; }
+          var vm = document.getElementById('videoModal'); if(vm){ vm.hidden = true; vm.style.display='none'; vm.style.pointerEvents='none'; }
           var mc = document.getElementById('modalClose'); if(mc) mc.style.pointerEvents = 'auto';
-        }catch(e){ /* silently ignore */ }
+        }catch(e){ }
       }
       disableModal();
       if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', disableModal);
-      // extra fallback timers
       setTimeout(disableModal, 300);
       setTimeout(disableModal, 1200);
     })();
@@ -49,9 +43,23 @@
         <h1 id="greeting">Welcome, Guest</h1>
         <p id="subGreeting">Discover anime, build your watchlist, track episodes and share favorites.</p>
       </div>
-      <div class="profile-card" id="profileCard">
-        <!-- populated from JS -->
-      </div>
+      <div class="profile-card" id="profileCard"></div>
+    </section>
+
+    <!-- New collections added here -->
+    <section class="card">
+      <h2>New Releases</h2>
+      <div id="newReleases" class="grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Classics</h2>
+      <div id="classics" class="grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Top Picks</h2>
+      <div id="topPicks" class="grid"></div>
     </section>
 
     <section class="features">
@@ -99,6 +107,16 @@
     <div class="modal-inner card">
       <button id="modalClose" class="modal-close">×</button>
       <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- video modal for play button -->
+  <div id="videoModal" class="modal" hidden>
+    <div class="modal-inner card" style="max-width:calc(100% - 40px);">
+      <button id="videoClose" class="modal-close">×</button>
+      <div id="videoHolder" style="width:100%;">
+        <video id="player" controls playsinline style="width:100%;height:auto;border-radius:8px;background:#000"></video>
+      </div>
     </div>
   </div>
 
