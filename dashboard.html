@@ -32,7 +32,7 @@
       <input id="searchInput" placeholder="Search anime, genres, year..." />
     </div>
     <nav class="nav">
-      <button id="btnProfile" class="icon"></button>
+      <button id="btnProfile" class="icon" aria-label="Profile"></button>
       <button id="btnLogout" class="btn-ghost">Logout</button>
     </nav>
   </header>
@@ -41,7 +41,7 @@
     <section class="welcome card">
       <div>
         <h1 id="greeting">Welcome, Guest</h1>
-        <p id="subGreeting">Discover anime, build your watchlist, track episodes and share favorites.</p>
+        <p id="subGreeting">Discover anime, watch trailers and save titles to your watchlist.</p>
       </div>
       <div class="profile-card" id="profileCard"></div>
     </section>
@@ -105,17 +105,17 @@
   <!-- details modal -->
   <div id="modal" class="modal" hidden>
     <div class="modal-inner card">
-      <button id="modalClose" class="modal-close">×</button>
+      <button id="modalClose" class="modal-close" aria-label="Close details">×</button>
       <div id="modalContent"></div>
     </div>
   </div>
 
-  <!-- video modal for play button -->
+  <!-- video modal for trailers (YouTube embed) -->
   <div id="videoModal" class="modal" hidden>
     <div class="modal-inner card" style="max-width:calc(100% - 40px);">
-      <button id="videoClose" class="modal-close">×</button>
+      <button id="videoClose" class="modal-close" aria-label="Close video">×</button>
       <div id="videoHolder" style="width:100%;">
-        <video id="player" controls playsinline style="width:100%;height:auto;border-radius:8px;background:#000"></video>
+        <iframe id="playerFrame" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="width:100%;height:360px;border-radius:8px;background:#000"></iframe>
       </div>
     </div>
   </div>
