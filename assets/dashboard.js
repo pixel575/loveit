@@ -9,26 +9,26 @@
 
   // Built-in fallback to guarantee visible content when AniList/API is blocked or rate-limited
   const FALLBACK_ANIME = [
-    { id: 100001, title: 'Attack on Titan', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Attack+on+Titan', genres: ['Action'], score: 0, trailer: null },
-    { id: 100002, title: 'Fullmetal Alchemist: Brotherhood', img: 'https://placehold.co/320x180/111427/ff7ab6?text=FMA+B', genres: ['Adventure'], score: 0, trailer: null },
-    { id: 100003, title: 'Death Note', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Death+Note', genres: ['Mystery'], score: 0, trailer: null },
-    { id: 100004, title: 'Naruto', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Naruto', genres: ['Action'], score: 0, trailer: null },
-    { id: 100005, title: 'Naruto: Shippuden', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Shippuden', genres: ['Action'], score: 0, trailer: null },
-    { id: 100006, title: 'One Piece', img: 'https://placehold.co/320x180/111427/ff7ab6?text=One+Piece', genres: ['Adventure'], score: 0, trailer: null },
-    { id: 100007, title: 'My Hero Academia', img: 'https://placehold.co/320x180/111427/ff7ab6?text=My+Hero', genres: ['Action'], score: 0, trailer: null },
-    { id: 100008, title: 'Hunter x Hunter', img: 'https://placehold.co/320x180/111427/ff7ab6?text=HxH', genres: ['Adventure'], score: 0, trailer: null },
-    { id: 100009, title: 'Demon Slayer', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Demon+Slayer', genres: ['Action'], score: 0, trailer: null },
-    { id: 100010, title: 'Jujutsu Kaisen', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Jujutsu+Kaisen', genres: ['Action'], score: 0, trailer: null },
-    { id: 100011, title: 'Spirited Away', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Spirited+Away', genres: ['Fantasy'], score: 0, trailer: null },
-    { id: 100012, title: 'Cowboy Bebop', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Cowboy+Bebop', genres: ['Sci-Fi'], score: 0, trailer: null },
-    { id: 100013, title: 'Steins;Gate', img: 'https://placehold.co/320x180/111427/ff7ab6?text=SteinsGate', genres: ['Sci-Fi'], score: 0, trailer: null },
-    { id: 100014, title: 'Clannad', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Clannad', genres: ['Romance'], score: 0, trailer: null },
-    { id: 100015, title: 'Your Lie in April', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Your+Lie+in+April', genres: ['Romance'], score: 0, trailer: null },
-    { id: 100016, title: 'Code Geass', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Code+Geass', genres: ['Mecha'], score: 0, trailer: null },
-    { id: 100017, title: 'Violet Evergarden', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Violet+Evergarden', genres: ['Drama'], score: 0, trailer: null },
-    { id: 100018, title: 'Mob Psycho 100', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Mob+Psycho', genres: ['Action'], score: 0, trailer: null },
-    { id: 100019, title: 'Sword Art Online', img: 'https://placehold.co/320x180/111427/ff7ab6?text=SAO', genres: ['Sci-Fi'], score: 0, trailer: null },
-    { id: 100020, title: 'Haikyuu!!', img: 'https://placehold.co/320x180/111427/ff7ab6?text=Haikyuu', genres: ['Sports'], score: 0, trailer: null }
+    { id: 100001, title: 'Attack on Titan', img:'https://placehold.co/320x180/111427/ff7ab6?text=Attack+on+Titan', genres:['Action'], score:0, trailer:{ site:'youtube', id:'MGRm4IzK1SQ' } },
+    { id: 100002, title: 'Fullmetal Alchemist: Brotherhood', img:'https://placehold.co/320x180/111427/ff7ab6?text=FMA+B', genres:['Adventure'], score:0, trailer:{ site:'youtube', id:'dZ0a3m0ShtU' } },
+    { id: 100003, title: 'Death Note', img:'https://placehold.co/320x180/111427/ff7ab6?text=Death+Note', genres:['Mystery'], score:0, trailer:{ site:'youtube', id:'N8fI2fZ6xk4' } },
+    { id: 100004, title: 'Naruto', img:'https://placehold.co/320x180/111427/ff7ab6?text=Naruto', genres:['Action'], score:0, trailer:{ site:'youtube', id:'lL0j2H2m7mY' } },
+    { id: 100005, title: 'Naruto: Shippuden', img:'https://placehold.co/320x180/111427/ff7ab6?text=Shippuden', genres:['Action'], score:0, trailer:{ site:'youtube', id:'z5S2fV1uF2s' } },
+    { id: 100006, title: 'One Piece', img:'https://placehold.co/320x180/111427/ff7ab6?text=One+Piece', genres:['Adventure'], score:0, trailer:{ site:'youtube', id:'1Ew6rX1qG2M' } },
+    { id: 100007, title: 'My Hero Academia', img:'https://placehold.co/320x180/111427/ff7ab6?text=My+Hero', genres:['Action'], score:0, trailer:{ site:'youtube', id:'6t5qE4ZfVvA' } },
+    { id: 100008, title: 'Hunter x Hunter', img:'https://placehold.co/320x180/111427/ff7ab6?text=HxH', genres:['Adventure'], score:0, trailer:{ site:'youtube', id:'IrFv3qzYVyo' } },
+    { id: 100009, title: 'Demon Slayer', img:'https://placehold.co/320x180/111427/ff7ab6?text=Demon+Slayer', genres:['Action'], score:0, trailer:{ site:'youtube', id:'VQGCKyvzIM4' } },
+    { id: 100010, title: 'Jujutsu Kaisen', img:'https://placehold.co/320x180/111427/ff7ab6?text=Jujutsu+Kaisen', genres:['Action'], score:0, trailer:{ site:'youtube', id:'SXihh2mQ2f0' } },
+    { id: 100011, title: 'Spirited Away', img:'https://placehold.co/320x180/111427/ff7ab6?text=Spirited+Away', genres:['Fantasy'], score:0, trailer:{ site:'youtube', id:'ByXuk9QqQkk' } },
+    { id: 100012, title: 'Cowboy Bebop', img:'https://placehold.co/320x180/111427/ff7ab6?text=Cowboy+Bebop', genres:['Sci-Fi'], score:0, trailer:{ site:'youtube', id:'Q1c6Sx3gcpI' } },
+    { id: 100013, title: 'Steins;Gate', img:'https://placehold.co/320x180/111427/ff7ab6?text=SteinsGate', genres:['Sci-Fi'], score:0, trailer:{ site:'youtube', id:'s1bXb2YmLhU' } },
+    { id: 100014, title: 'Clannad', img:'https://placehold.co/320x180/111427/ff7ab6?text=Clannad', genres:['Romance'], score:0, trailer:{ site:'youtube', id:'z4f9r6Kf7J0' } },
+    { id: 100015, title: 'Your Lie in April', img:'https://placehold.co/320x180/111427/ff7ab6?text=Your+Lie+in+April', genres:['Romance'], score:0, trailer:{ site:'youtube', id:'6M0w6Z2G8U4' } },
+    { id: 100016, title: 'Code Geass', img:'https://placehold.co/320x180/111427/ff7ab6?text=Code+Geass', genres:['Mecha'], score:0, trailer:{ site:'youtube', id:'1k6zjYt3b3c' } },
+    { id: 100017, title: 'Violet Evergarden', img:'https://placehold.co/320x180/111427/ff7ab6?text=Violet+Evergarden', genres:['Drama'], score:0, trailer:{ site:'youtube', id:'YB1yqQ2rKQk' } },
+    { id: 100018, title: 'Mob Psycho 100', img:'https://placehold.co/320x180/111427/ff7ab6?text=Mob+Psycho', genres:['Action'], score:0, trailer:{ site:'youtube', id:'ZqGJpngdeTM' } },
+    { id: 100019, title: 'Sword Art Online', img:'https://placehold.co/320x180/111427/ff7ab6?text=SAO', genres:['Sci-Fi'], score:0, trailer:{ site:'youtube', id:'Q2waD9YhF18' } },
+    { id: 100020, title: 'Haikyuu!!', img:'https://placehold.co/320x180/111427/ff7ab6?text=Haikyuu', genres:['Sports'], score:0, trailer:{ site:'youtube', id:'h4Vr9G1x9z8' } }
   ];
 
   const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
@@ -39,7 +39,7 @@
   function requireAuth(){ const cur=getCurrent(); if(!cur){ window.location.href='login.html'; return null; } return cur; }
 
   async function fetchAniList(title){
-    const query = `query ($search: String) { Media(search: $search, type: ANIME) { id title { romaji native english } coverImage { large medium } bannerImage description(asHtml: false) genres episodes duration averageScore siteUrl trailer { id site } } }`;
+    const query = `query ($search: String) { Media(search: $search, type: ANIME) { id title { romaji native english } coverImage { large medium } bannerImage description(asHtml: false) genres episodes duration averageScore format status siteUrl trailer { id site } } }`;
     try{
       const resp = await fetch(ANILIST_ENDPOINT, {
         method: 'POST',
@@ -53,7 +53,7 @@
   }
 
   async function fetchCatalogPage(page, perPage){
-    const query = `query ($page: Int, $perPage: Int) { Page(page: $page, perPage: $perPage) { media(type: ANIME, sort: POPULARITY_DESC) { id title { romaji english native } coverImage { large medium } bannerImage description(asHtml:false) genres episodes duration averageScore siteUrl trailer { id site } } } }`;
+    const query = `query ($page: Int, $perPage: Int) { Page(page: $page, perPage: $perPage) { media(type: ANIME, sort: POPULARITY_DESC) { id title { romaji english native } coverImage { large medium } trailer { id site } averageScore genres } } }`;
     try{
       const resp = await fetch(ANILIST_ENDPOINT, {
         method: 'POST',
@@ -201,4 +201,94 @@
   function getList(key){ try{ return JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ return []; } }
   function saveList(key, arr){ localStorage.setItem(key, JSON.stringify(arr)); }
 
-  function renderWatchlist(){ const list = getList('li_watchlist'); const el = $('#watchlist'); if(!el) return; el.innerHTML=''; if(!list.length){ el.innerHTML = '<div style="color:var(--muted);f[...]
+  function renderWatchlist(){ const list = getList('li_watchlist'); const el = $('#watchlist'); if(!el) return; el.innerHTML=''; if(!list.length){ el.innerHTML = '<div style="color:var(--muted);font-size:13px">No items in watchlist</div>'; return; } list.forEach(id=>{ const a = APP_ANIME.find(x=>String(x.id)===String(id)); if(!a) return; const node = document.createElement('div'); node.textContent = a.title; el.appendChild(node); }); }
+  function renderFavorites(){ const list = getList('li_favorites'); const el = $('#favorites'); if(!el) return; el.innerHTML=''; if(!list.length){ el.innerHTML = '<div style="color:var(--muted);font-size:13px">No favorites yet</div>'; return; } list.forEach(id=>{ const a = APP_ANIME.find(x=>String(x.id)===String(id)); if(!a) return; const node = document.createElement('div'); node.textContent = a.title; el.appendChild(node); }); }
+
+  // --- video modal open/close + unmute support ---
+  function openVideoModalById(id){
+    const meta = APP_ANIME.find(a => Number(a.id) === Number(id));
+    if(!meta) return;
+    const vm = document.getElementById('videoModal');
+    const holder = document.getElementById('videoHolder');
+    const pf = document.getElementById('playerFrame');
+    const unmuteBtn = document.getElementById('unmuteBtn');
+
+    // reset
+    holder.innerHTML = '';
+    if(pf) pf.src = '';
+    if(pf) pf.style.display = 'block';
+    if(unmuteBtn) unmuteBtn.style.display = 'none';
+
+    if(meta.trailer && (meta.trailer.site||'').toLowerCase() === 'youtube' && meta.trailer.id){
+      const src = `https://www.youtube-nocookie.com/embed/${meta.trailer.id}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1`;
+      if(pf) pf.src = src;
+      if(unmuteBtn) unmuteBtn.style.display = '';
+    } else {
+      const img = document.createElement('img');
+      img.src = meta.img || '';
+      img.alt = meta.title || '';
+      img.style.width = '100%';
+      img.style.height = '360px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = '8px';
+      if(pf) pf.style.display = 'none';
+      holder.appendChild(img);
+    }
+
+    if(vm) vm.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVideoModal(){
+    const vm = document.getElementById('videoModal');
+    const holder = document.getElementById('videoHolder');
+    const pf = document.getElementById('playerFrame');
+    const unmuteBtn = document.getElementById('unmuteBtn');
+    if(pf){ pf.src = ''; pf.style.display = 'block'; }
+    if(holder) holder.innerHTML = '';
+    if(vm) vm.hidden = true;
+    if(unmuteBtn) unmuteBtn.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function unmuteModalPlayer(){
+    const pf = document.getElementById('playerFrame');
+    if(!pf || !pf.src) return;
+    let src = pf.src;
+    src = src.replace(/([?&])mute=1(&|$)/, '$1mute=0$2');
+    if(!/mute=/.test(src)) {
+      src = src + (src.indexOf('?') === -1 ? '?' : '&') + 'mute=0';
+    }
+    pf.src = src + '&autoplay=1';
+  }
+
+  // Delegated click handling: open modal when poster/thumb clicked; close via close button or overlay
+  document.addEventListener('click', function(e){
+    const card = e.target.closest && e.target.closest('.anime-card');
+    if(card && (e.target.closest('img') || e.target.closest('.thumb-player'))) {
+      const id = card.dataset.animeId;
+      if(id) openVideoModalById(id);
+      return;
+    }
+
+    if(e.target && (e.target.id === 'videoClose' || e.target.id === 'modalClose')) {
+      closeVideoModal();
+      return;
+    }
+  });
+
+  window.addEventListener('load', function(){
+    const vm = document.getElementById('videoModal');
+    if(vm) vm.addEventListener('click', function(e){
+      if(e.target === vm) closeVideoModal();
+    });
+    const vc = document.getElementById('videoClose');
+    if(vc) vc.addEventListener('click', closeVideoModal);
+    const ub = document.getElementById('unmuteBtn');
+    if(ub) ub.addEventListener('click', unmuteModalPlayer);
+
+    // kick off defaults load
+    try{ loadDefaults(); }catch(e){ console.warn('init loadDefaults', e); }
+  });
+
+})();
