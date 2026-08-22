@@ -1,7 +1,6 @@
-// assets/dashboard.js - updated: play on image tap only; load large AniList catalog (up to target count)
-// - Removed play buttons from the card UI; tapping the poster image now opens the larger player
-// - Added fetchCatalog to retrieve many anime entries from AniList (paginated) aiming for at least TARGET_COUNT entries
-// - Keeps poster-first thumbnail behavior and avoids showing black frames
+// assets/dashboard.js - updated: render defaults immediately and load large AniList catalog in background
+// - Fix for "no anime shown": render initial DEFAULT_TITLES right away so UI isn't empty while catalog loads
+// - Background fetchCatalog will append additional items and refresh the browse grid when available
 
 (function(){
   const DEFAULT_TITLES = [
@@ -131,21 +130,16 @@
 
   let APP_ANIME = [];
   async function loadDefaults(){
-    // Try to fetch a large catalog (aim for 1000). If it fails, fall back to defaults.
-    const TARGET = 1000;
-    try{
-      const list = await fetchCatalog(TARGET);
-      if(list && list.length >= Math.min(50, TARGET)){
-        APP_ANIME = list; // success (may be less than TARGET if API exhausted)
-      } else {
-        // fallback: build from DEFAULT_TITLES
-        const results = [];
-        for(const t of DEFAULT_TITLES){ const cached = getCachedMeta(t); if(cached){ results.push(buildAnimeFromMeta(cached)); continue; } const meta = await fetchAniList(t); if(meta){ cacheMeta(t, meta); results.push(buildAnimeFromMeta(meta)); } }
-        APP_ANIME = results.filter(Boolean);
-      }
-    }catch(e){ console.warn('loadDefaults', e); const results = []; for(const t of DEFAULT_TITLES){ const meta = await fetchAniList(t); if(meta) results.push(buildAnimeFromMeta(meta)); } APP_ANIME = results.filter(Boolean); }
+    // FIRST: render a small default curated set immediately so the UI isn't empty
+    const results = [];
+    for(const t of DEFAULT_TITLES){
+      const cached = getCachedMeta(t);
+      if(cached){ results.push(buildAnimeFromMeta(cached)); continue; }
+      try{ const meta = await fetchAniList(t); if(meta){ cacheMeta(t, meta); results.push(buildAnimeFromMeta(meta)); } }catch(e){ /* swallow */ }
+    }
+    APP_ANIME = results.filter(Boolean);
 
-    // Render sections with whatever we have (large lists are sliced)
+    // Render initial sections using the small set so the user sees content immediately
     renderGrid('newReleases', APP_ANIME.slice(0,4));
     renderGrid('classics', APP_ANIME.slice(4,7));
     renderGrid('topPicks', APP_ANIME.slice().sort((a,b)=>b.score-a.score).slice(0,4));
@@ -153,6 +147,27 @@
     renderGrid('recommended', APP_ANIME.filter(x=>x.genres.map(g=>g.toLowerCase()).includes('romance')).slice(0,4));
     renderGrid('browseGrid', APP_ANIME, false);
     renderWatchlist(); renderFavorites();
+
+    // SECOND: in the background try to fetch a much larger catalog and merge it in when available
+    (async function backgroundCatalog(){
+      try{
+        const TARGET = 1000;
+        const catalog = await fetchCatalog(TARGET);
+        if(catalog && catalog.length){
+          // merge, de-duplicate by id, but keep initial APP_ANIME order at the front
+          const byId = new Map();
+          APP_ANIME.forEach(a=> byId.set(a.id, a));
+          catalog.forEach(a=>{ if(!byId.has(a.id)) byId.set(a.id, a); });
+          // rebuild APP_ANIME preserving existing front items
+          const merged = Array.from(byId.values());
+          APP_ANIME = merged;
+          // refresh browse grid and other lists that rely on the larger catalog
+          renderGrid('browseGrid', APP_ANIME, false);
+          // Optionally update other collections with larger data
+          try{ renderGrid('trending', APP_ANIME.slice().sort((a,b)=>b.score-a.score).slice(0,4)); renderGrid('topPicks', APP_ANIME.slice().sort((a,b)=>b.score-a.score).slice(0,4)); }catch(e){}
+        }
+      }catch(e){ console.warn('backgroundCatalog', e); }
+    })();
   }
 
   function getList(key){ try{ return JSON.parse(localStorage.getItem(key) || '[]'); }catch(e){ return []; } }
