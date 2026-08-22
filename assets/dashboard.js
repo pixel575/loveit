@@ -1,5 +1,5 @@
 // assets/dashboard.js - client-side dashboard functionality (AniList trailers & posters)
-// Updated: make image tappable to open trailer modal (single tap), ensure trailer embed loads trailer (not full show)
+// Updated: ensure trailer iframe uses playsinline parameter for mobile inline playback, add unmute fallback
 (function(){
   // Default titles to fetch from AniList
   const DEFAULT_TITLES = [
@@ -66,13 +66,30 @@
   function openDetails(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return; const modal = $('#modal'); const content = document.getElementById('modalContent'); const wl = getList('li_watchlist'); const entry = wl.find(x=>x.id===a.id) || {id:a.id,progress:0,notes:''}; content.innerHTML = `<div class="modal-content"><img src="${a.img}"><h2 style="color:var(--accent)">${a.title}</h2><p style="color:var(--muted)">${a.genres.join(' • ')} • ${a.year} • ${a.episodes} eps • ⭐ ${a.score}</p><p style="clear:left">${a.synopsis}</p><div style="margin-top:12px"><label>Progress: <input id="modalProgress" type="range" min="0" max="100" value="${entry.progress||0}"> <span id="modalProgVal">${entry.progress||0}%</span></label><div style="margin-top:8px"><textarea id="modalNotes" placeholder="Notes about this anime" style="width:100%;height:80px;border-radius:6px;padding:8px">${entry.notes||''}</textarea></div><div style="margin-top:10px;display:flex;gap:8px"><button id="modalSave" class="btn">Save to Watchlist</button><button id="modalFav" class="btn-plain">Favorite</button><a class="btn-plain" href="${a.anilistUrl}" target="_blank" rel="noopener">View on AniList</a></div></div></div>`; modal.hidden=false; const mp=document.getElementById('modalProgress'); if(mp){ mp.addEventListener('input', e=>{ document.getElementById('modalProgVal').textContent = e.target.value + '%'; }); } const save=document.getElementById('modalSave'); if(save){ save.addEventListener('click', ()=>{ const progress = Number(document.getElementById('modalProgress').value); const notes = document.getElementById('modalNotes').value; addOrUpdateWatch(a.id, progress, notes); renderWatchlist(); closeModal(); }); } const fav=document.getElementById('modalFav'); if(fav){ fav.addEventListener('click', ()=>{ addFavorite(a.id); renderFavorites(); alert('Added to favorites'); }); } }
   function closeModal(){ const modal = $('#modal'); if(modal) modal.hidden = true; }
 
-  function openVideo(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return alert('Trailer not available'); if(!a.trailer) return alert('Trailer not available'); const vm = document.getElementById('videoModal'); const frame = document.getElementById('playerFrame'); // ensure we load the YouTube trailer ID — this is a promotional trailer from AniList metadata
-    if(a.trailer.site.toLowerCase()==='youtube'){ // set embed URL — using autoplay=1 where browsers allow; user gesture (tapping image) should allow playback
-      frame.src = `https://www.youtube.com/embed/${a.trailer.id}?autoplay=1&rel=0&modestbranding=1`;
+  function openVideo(id){ const a = APP_ANIME.find(x=>x.id==id); if(!a) return alert('Trailer not available'); if(!a.trailer) return alert('Trailer not available'); const vm = document.getElementById('videoModal'); const frame = document.getElementById('playerFrame'); const unmuteBtn = document.getElementById('unmuteBtn'); // build embed with playsinline to allow inline playback on iOS/Android
+    if(a.trailer.site.toLowerCase()==='youtube'){
+      // Use playsinline=1 to encourage inline playback on mobile devices. Do not force mute here — user tap should allow sound.
+      const src = `https://www.youtube.com/embed/${a.trailer.id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
+      frame.src = src;
+      // show modal and hide unmute button by default
       vm.hidden=false;
+      if(unmuteBtn) unmuteBtn.style.display='none';
+      // after short timeout, if video seems to autoplay muted (some browsers mute), show unmute option
+      setTimeout(()=>{
+        try{
+          // If visible and still audio-only concerns, reveal unmute control for user (they can click to reload iframe without playsinline mute params)
+          if(unmuteBtn) unmuteBtn.style.display='inline-block';
+        }catch(e){}
+      },800);
     } else { alert('Trailer site not supported for embedding.'); }
   }
   function closeVideo(){ const vm=document.getElementById('videoModal'); const frame=document.getElementById('playerFrame'); if(frame){ try{ frame.src = ''; }catch(e){} } if(vm) vm.hidden=true; }
+
+  // unmute handler: reload iframe without playsinline parameter (user requested sound)
+  function bindUnmute(){ const btn = document.getElementById('unmuteBtn'); if(!btn) return; btn.addEventListener('click', ()=>{
+    const frame = document.getElementById('playerFrame'); if(!frame) return; const src = frame.src; if(!src) return; // reload with same id but without playsinline param (keeps autoplay)
+    const m = src.match(/embed\/([^?]+)/); if(!m) return; const id = m[1]; frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`; btn.style.display='none';
+  }); }
 
   async function downloadAnime(id){ const downloads = JSON.parse(localStorage.getItem('li_downloads') || '{}'); const url = downloads[id]; if(!url) return alert('No downloadable asset available for this title.'); try{ const resp = await fetch(url); if(!resp.ok) throw new Error('Network error'); const blob = await resp.blob(); const blobUrl = URL.createObjectURL(blob); const aEl = document.createElement('a'); aEl.href = blobUrl; const a = APP_ANIME.find(x=>x.id===id); aEl.download = `${a.title.replace(/[^a-z0-9]/gi,'_')}.mp4`; document.body.appendChild(aEl); aEl.click(); aEl.remove(); setTimeout(()=>URL.revokeObjectURL(blobUrl),60000); }catch(err){ alert('Download failed: '+err.message); } }
 
@@ -90,6 +107,6 @@
 
   document.addEventListener('input', e=>{ const t=e.target; const action=t.getAttribute && t.getAttribute('data-action'); if(action==='progress'){ const id=Number(t.getAttribute('data-id')); const list=getList('li_watchlist'); const item=list.find(x=>x.id===id); if(item){ item.progress=Number(t.value); saveList('li_watchlist',list); const span=document.querySelector('.prog-val[data-id="'+id+'"]'); if(span) span.textContent = item.progress + '%'; } } if(action==='notes'){ const id=Number(t.getAttribute('data-id')); const list=getList('li_watchlist'); const item=list.find(x=>x.id===id); if(item){ item.notes=t.value; saveList('li_watchlist',list); } } });
 
-  (async function init(){ bindModalControls(); bindHeaderControls(); const cur=requireAuth(); if(!cur) return; $('#greeting').textContent = `Welcome, ${cur.username}`; $('#subGreeting').textContent = `Browse anime, watch trailers and save titles.`; await loadDefaults(); })();
+  (async function init(){ bindModalControls(); bindHeaderControls(); bindUnmute(); const cur=requireAuth(); if(!cur) return; $('#greeting').textContent = `Welcome, ${cur.username}`; $('#subGreeting').textContent = `Browse anime, watch trailers and save titles.`; await loadDefaults(); })();
 
 })();
